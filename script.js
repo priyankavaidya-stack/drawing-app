@@ -29,6 +29,11 @@ clearCanvas = document.querySelector(".clear-canvas"),
 // work on save image btn
 saveImg = document.querySelector(".save-img"),
 
+// Step 21
+// Undo feature
+undoDraw = document.querySelector(".undo-canvas"),
+redoDraw = document.querySelector(".redo-canvas"),
+
 // step 1
 ctx = canvas.getContext("2d"); // getContext() method returns a drawing context on the canvas
 
@@ -44,7 +49,26 @@ selectedTool = "brush",
 // Step 8
 brushWidth = 5,
 // step 16 continue to change brush color
-selectedColor = "#000";
+selectedColor = "#000",
+
+// Step 21
+// Undo/Redo function
+// Initialize arrays for undo and redo history
+undoHistory = [],
+redoHistory = [];
+
+
+
+// Function to save a snapshot of the current canvas state
+function saveCanvasState() {
+    const snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    undoHistory.push(snapshot);
+
+    // Clear the redo history whenever a new change is made
+    redoHistory.length = 0;
+}
+
+
 
 // we r doing this so that transparent background image will not be there
 // means white background img will be downloaded
@@ -152,6 +176,10 @@ const startDraw = (e) => {
     // step 11
     snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
+    // Step 21 
+    // saving the snapshot and pushing it to udoHistory arr to store each drawing
+    saveCanvasState();
+
 }
 
 // Step 2
@@ -228,7 +256,7 @@ colorBtns.forEach(btn => {
 });
 
 // Step 17
-// Last color btn color picker
+// Last color btn color pickerS
 colorPicker.addEventListener("change", () => {
     // passing picked color value from color picker to last color btn background
     colorPicker.parentElement.style.background = colorPicker.value;
@@ -241,6 +269,10 @@ clearCanvas.addEventListener("click", () => {
     // to clear whole canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     setCanvasBackground();
+
+    restore_array = [];
+    index =-1;
+    // console.log(restore_array);
 });
 
 // Step 20
@@ -256,9 +288,51 @@ saveImg.addEventListener("click", () => {
     link.click();
 });
 
+// Step 21 undo feature
+undoDraw.addEventListener("click", () => {
+    if (undoHistory.length > 0) {
+        // Pop the last canvas state from the undo history
+        const lastState = undoHistory.pop();
+
+        // Move the current canvas state to the redo history
+        const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        redoHistory.push(currentState);
+
+        // Clear the current canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        setCanvasBackground();
+
+        // Restore the last saved canvas state
+        ctx.putImageData(lastState, 0, 0);
+    }
+});
+
+// Step 21 redo function
+// Event listener for the "redoDraw" button
+redoDraw.addEventListener("click", () => {
+    if (redoHistory.length > 0) {
+        // Pop the last canvas state from the redo history
+        const lastState = redoHistory.pop();
+
+        // Move the current canvas state to the undo history
+        const currentState = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        undoHistory.push(currentState);
+
+        // Clear the current canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        setCanvasBackground();
+
+        // Restore the last saved canvas state
+        ctx.putImageData(lastState, 0, 0);
+    }
+});
+
+
 // Step 5, to start drawing when mousedown
 canvas.addEventListener("mousedown", startDraw);
 canvas.addEventListener("mousemove", drawing);
+canvas.addEventListener("touchmove", drawing);
+canvas.addEventListener("touchstart", startDraw);
 
 // Step 6
 // Setting isDrawing value to false on mouse up
@@ -267,3 +341,9 @@ canvas.addEventListener("mousemove", drawing);
 //so to fix this go to ---> Step 7
 canvas.addEventListener("mouseup", () => isDrawing = false);
 
+// Step 6
+// Setting isDrawing value to false on mouse up
+// After doing this, you will see the drawing is starting and stopping when we want 
+// but next time drawing starts from where it left
+//so to fix this go to ---> Step 7
+canvas.addEventListener("touchend", () => isDrawing = false);

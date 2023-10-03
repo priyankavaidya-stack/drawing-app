@@ -4,12 +4,18 @@
         <meta charset="utf-8">
         <title>Drawing-Paint App</title>
         <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="script.js" defer></script>
     </head>
     <body>
+        <section class="background-img">
         <div class="container">
             <section class="tools-board">
+                <div class="row undo-redo-row">
+                    <div class="row-box undo-canvas"><i class="fa-solid fa-arrow-rotate-left arrow-left"></i> Undo</div>
+                    <div class="row-box redo-canvas"><i class="fa-solid fa-arrow-rotate-right arrow-right"></i> Redo</div>
+                </div>
                 <div class="row">
                     <label class="title">Shapes</label>
                     <ul class="options">
@@ -65,8 +71,12 @@
                 </div>
             </section>
             <section class="drawing-board">
+                <!-- <div class="hamburger">
+                    <i class="fa-solid fa-bars"></i>
+                </div> -->
                 <canvas></canvas>
             </section>
         </div>
+    </section>
     </body>
 </html>
